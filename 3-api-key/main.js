@@ -1,6 +1,6 @@
+import { API_KEY } from "../config.js";
 const API_URL = 'https://api.thecatapi.com/v1/images/search';
-const API_KEY = 'a649486c-fd7e-45a9-83bf-ac0cc98ded84';
-const img = document.querySelector('img');
+// const img = document.querySelector('img');
 // const btn = document.getElementById('btn-change');
 
 const btnSend = document.getElementById('btn-send')
