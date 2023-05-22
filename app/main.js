@@ -10,6 +10,9 @@ const inputNumber = document.getElementById('input-number');
 const imgContainer = document.querySelector('.container__img');
 const imgFragment = document.createDocumentFragment();
 
+const favImgContainer = document.querySelector('.container__fav-img');
+const favImgFragment = document.createDocumentFragment();
+
 // ASYNC
 async function getCatAwait(limit = 1) {
   try {
@@ -31,6 +34,12 @@ async function getCatAwait(limit = 1) {
       // Button Properties
       btn.innerText = 'Add to Favorites';
       btn.classList.add('btn-favorites');
+      btn.setAttribute('id', `${el.id}`);
+
+      btn.addEventListener('click', () => {
+        saveFavoriteCats(el.id);
+        loadFavoritesCats();
+      });
 
       divImgContainer.appendChild(imgElement);
       divImgContainer.appendChild(btn);
@@ -45,10 +54,6 @@ async function getCatAwait(limit = 1) {
   }
 }
 
-// btn.addEventListener('click', () => {
-//   getCatAwait();
-// })
-
 btnSend.addEventListener('click', () => {
   let number = inputNumber.value;
   if (parseInt(number) > 0) {
@@ -62,12 +67,71 @@ btnSend.addEventListener('click', () => {
 
 async function loadFavoritesCats() {
   try {
-    const res = await fetch(`${API_URL}/favourites?limit=2&api_key=${API_KEY}`);
+    const res = await fetch(`${API_URL}/favourites`, {
+      method: 'GET',
+      headers: {
+        'x-api-key': API_KEY,
+        'content-type': 'application/json',
+      },
+    });
+
     const data = await res.json();
     console.log(data);
+
+    data.forEach((el) => {
+      const divImgContainer = document.createElement('div');
+      const imgElement = document.createElement('img');
+      const btn = document.createElement('button');
+
+      // Image Properties
+      imgElement.setAttribute('src', `${el.image.url}`);
+      imgElement.setAttribute('alt', 'Cats');
+      imgElement.setAttribute('id', `${el.image.id}`);
+
+      // Button Properties
+      btn.innerText = 'Remove to Favorites';
+      btn.classList.add('btn-rm-favorites');
+      btn.setAttribute('id', `${el.image.id}`);
+
+      btn.addEventListener('click', () => {
+        deleteFavoriteCats(el.id);
+      });
+
+      divImgContainer.appendChild(imgElement);
+      divImgContainer.appendChild(btn);
+
+      favImgFragment.appendChild(divImgContainer);
+    });
+    favImgContainer.innerHTML = '';
+    favImgContainer.appendChild(favImgFragment);
   } catch (error) {
     console.log(error);
   }
+}
+
+async function saveFavoriteCats(id) {
+  const res = await fetch(`${API_URL}/favourites`, {
+    method: 'POST',
+    headers: {
+      'x-api-key': API_KEY,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      image_id: id,
+    }),
+  });
+  console.log(res);
+  // console.log(id);
+}
+async function deleteFavoriteCats(id) {
+  const res = await fetch(`${API_URL}/favourites/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'x-api-key': API_KEY,
+    },
+  });
+  console.log(res);
+  loadFavoritesCats();
 }
 
 getCatAwait();
